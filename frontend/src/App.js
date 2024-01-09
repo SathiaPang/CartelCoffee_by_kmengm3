@@ -1,8 +1,15 @@
-import React from 'react'
-
+import React from 'react';
+import "./App.css";
+import {BrowserRouter,Routes,Route} from "react-router-dom" 
+import {LoginPage,SignUpPage} from "./Routes.js"
 const App = () => {
   return (
-    <div><center><h1>Oh hello there</h1></center></div>
+    <BrowserRouter>
+    <Routes>
+      <Route path='/login' element={<LoginPage/>} ></Route>
+      <Route path='/sign-up' element={<SignUpPage/>} ></Route>
+    </Routes>
+    </BrowserRouter>
   )
 }
 
