@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     avatar: {
         public_id: {
             type: String,
-            required: true,
+            required: false, // Make it optional
         },
         url: {
             type: String,
@@ -64,26 +64,6 @@ const userSchema = new mongoose.Schema({
     resetPasswordTime: Date,
 });
 
-
-//  Hash password
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) {
-        next();
-    }
-
-    this.password = await bcrypt.hash(this.password, 10);
-});
-
-// jwt token
-userSchema.methods.getJwtToken = function () {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
-        expiresIn: process.env.JWT_EXPIRES,
-    });
-};
-
-// compare password
-userSchema.methods.comparePassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
-};
+// ... other code ...
 
 module.exports = mongoose.model("User", userSchema);

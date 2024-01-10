@@ -3,6 +3,7 @@ const path = require("path");
 const { upload } = require("../multer");
 const router = express.Router();
 const User = require("../model/user");
+const fs = require("fs");
 
 router.post("/create-user", upload.single("file"), async (req, res, next) => {
     try {
@@ -10,25 +11,35 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
         const userEmail = await User.findOne({ email });
 
         if (userEmail) {
-            return next(new ErrorHandler("User already exists!!", 400));
+            const filename = req.file.filename;
+            const filePath = `uploads/${filename}`;
+            fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.log(err)
+                    res.status(500).json({ message: "Error in deleting file" })
+                } else {
+                    res.json({ message: "File Delete successfully" })
+                }
+            })
+
+            const error = new Error("User already exists!!");
+            // error.statusCode = 400;
+            // throw error;
         }
 
         const filename = req.file.filename;
         const fileUrl = path.join(filename);
         const user = {
+
             name: name,
             email: email,
             password: password,
             avatar: {
-                public_id: "some_public_id", // replace with actual public_id
                 url: fileUrl,
             },
         };
         console.log(user);
 
-        // Continue with other processing or response logic here.
-
-        // Example: save the user to the database
         const newUser = new User(user);
         await newUser.save();
 
@@ -39,8 +50,8 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
             user: newUser,
         });
     } catch (error) {
-        next(error); // Pass the error to the error handler
+        console.error(error.message);
     }
 });
 
-module.exports = router;
+module.exports = router; 
